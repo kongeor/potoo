@@ -2,12 +2,14 @@
   (:require [com.stuartsierra.component :as component]
             [ring.adapter.jetty :refer [run-jetty]]
             [bidi.ring :refer [make-handler]]
+            [ring.middleware.json :refer [wrap-json-response]]
+            [ring.util.response :refer [response]]
             [potoo.datomic :as db]))
 
 ;; Handlers
 
 (defn get-potoos [req]
-  (db/find-potoos (:db-conn req)))
+  (response (db/find-potoos (:db-conn req))))
 
 ;; Routes
 
@@ -20,7 +22,7 @@
   (fn [req] (handler (assoc req :db-conn conn))))
 
 (defn potoo-handler [conn]
-  (wrap-connection (make-handler routes) conn))
+  (wrap-json-response (wrap-connection (make-handler routes) conn)))
 
 ;; WebServer
 

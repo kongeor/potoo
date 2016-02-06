@@ -7,6 +7,7 @@
                  [com.datomic/datomic-free "0.9.5344"]
                  [com.stuartsierra/component "0.3.1"]
                  [ring/ring "1.4.0"]
+                 [ring/ring-json "0.4.0"]
                  [bidi "1.25.0"]]
 
   :source-paths ["src/clj"])
