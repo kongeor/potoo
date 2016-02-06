@@ -1,14 +1,16 @@
 (ns user
   (:require [com.stuartsierra.component :as component]
-            [clojure.tools.namespace.repl :refer (refresh)]))
+            [clojure.tools.namespace.repl :refer (refresh)]
+            [potoo.system :as system]))
 
 (def system nil)
 
 (defn init []
   (alter-var-root #'system
-                  nil
-                  #_(constantly (system/dev-system {:db-uri   "datomic:mem://localhost:4334/potoos"
-                                                  :web-port 8081}))))
+                  (constantly
+                    (system/dev-system
+                      {:db-uri   "datomic:mem://localhost:4334/potoos"
+                       :web-port 8081}))))
 
 (defn start []
   (alter-var-root #'system component/start))

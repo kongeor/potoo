@@ -6,15 +6,21 @@
             [ring.util.response :refer [response]]
             [potoo.datomic :as db]))
 
+;; Helpers
+
+(defn- fmt-potoos [data]
+  (map (partial zipmap [:text :name :date]) data))
+
 ;; Handlers
 
 (defn get-potoos [req]
-  (response (db/find-potoos (:db-conn req))))
+  (let [data (db/find-potoos (:db-conn req))]
+    (response (fmt-potoos data))))
 
 ;; Routes
 
 (def routes
-  ["/api" {"potoos" {:get {[""] get-potoos}}}])
+  ["/api" {"/potoos" {:get {[""] get-potoos}}}])
 
 ;; Primary handler
 
