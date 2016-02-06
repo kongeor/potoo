@@ -1,0 +1,24 @@
+[
+ ;; Pots
+
+ {:db/id #db/id[:db.part/db]
+  :db/ident :pot/created
+  :db/valueType :db.type/instant
+  :db/cardinality :db.cardinality/one
+  :db/doc "A pot's creation timestamp"
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db]
+  :db/ident :pot/text
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "A pot's text"
+  :db.install/_attribute :db.part/db}
+
+ {:db/id #db/id[:db.part/db]
+  :db/ident :pot/author
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "A pot's author"
+  :db.install/_attribute :db.part/db}
+ ]
