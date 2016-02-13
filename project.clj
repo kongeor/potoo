@@ -13,4 +13,5 @@
 
   :source-paths ["src/clj"]
   :main potoo.system
-  :aot [potoo.system])
+  :aot [potoo.system]
+  :min-lein-version "2.0.0")
