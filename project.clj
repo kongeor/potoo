@@ -10,4 +10,6 @@
                  [ring/ring-json "0.4.0"]
                  [bidi "1.25.0"]]
 
-  :source-paths ["src/clj"])
+  :source-paths ["src/clj"]
+  :main potoo.system
+  :aot [potoo.system])

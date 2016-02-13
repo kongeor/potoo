@@ -32,17 +32,16 @@
 
 ;; WebServer
 
-(defrecord WebServer [port container datomic-connection]
+(defrecord WebServer [opts container datomic-connection]
   component/Lifecycle
   (start [component]
     (let [conn (:db-conn datomic-connection)]
       (let [req-handler (potoo-handler conn)
-            container (run-jetty req-handler
-                                 {:port port :join? false})]
+            container (run-jetty req-handler opts)]
         (assoc component :container container))))
   (stop [component]
     (.stop container)
     component))
 
-(defn new-server [web-port]
-  (WebServer. web-port nil nil))
+(defn new-server [opts]
+  (WebServer. opts nil nil))
