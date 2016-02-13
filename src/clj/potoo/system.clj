@@ -1,7 +1,8 @@
 (ns potoo.system
   (:require [com.stuartsierra.component :as component]
             [potoo.datomic :as db]
-            [potoo.server :as server])
+            [potoo.server :as server]
+            [taoensso.timbre :as log])
   (:gen-class))
 
 (defn dev []
@@ -10,6 +11,7 @@
 (defn new-system [config-options]
   (let [{:keys [db-uri]} config-options
         web-opts (select-keys config-options [:port :join?])]
+    (log/info "Bootstrapping system")
     (component/system-map
       :db (db/new-database db-uri)
       :webserver

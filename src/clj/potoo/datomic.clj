@@ -1,7 +1,8 @@
 (ns potoo.datomic
   (:require [datomic.api :as d]
             [com.stuartsierra.component :as component]
-            [clojure.java.io :as io])
+            [clojure.java.io :as io]
+            [taoensso.timbre :as log])
   (:import datomic.Util))
 
 
@@ -19,6 +20,7 @@
 (defrecord DatomicDatabase [uri schema initial-data db-conn]
   component/Lifecycle
   (start [component]
+    (log/info "Creating database connection to" uri)
     (d/create-database uri)
     (let [c (d/connect uri)]
       @(d/transact c schema)

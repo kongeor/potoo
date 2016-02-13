@@ -4,7 +4,8 @@
             [bidi.ring :refer [make-handler]]
             [ring.middleware.json :refer [wrap-json-response]]
             [ring.util.response :refer [response]]
-            [potoo.datomic :as db]))
+            [potoo.datomic :as db]
+            [taoensso.timbre :as log]))
 
 ;; Helpers
 
@@ -15,6 +16,7 @@
 
 (defn get-potoos [req]
   (let [data (db/find-potoos (:db-conn req))]
+    (log/info "Getting all potoos from" (:remote-addr req))
     (response (fmt-potoos data))))
 
 ;; Routes
@@ -35,11 +37,13 @@
 (defrecord WebServer [opts container datomic-connection]
   component/Lifecycle
   (start [component]
+    (log/info "Starting web server with params:" opts)
     (let [conn (:db-conn datomic-connection)]
       (let [req-handler (potoo-handler conn)
             container (run-jetty req-handler opts)]
         (assoc component :container container))))
   (stop [component]
+    (log/info "Stopping web server")
     (.stop container)
     component))
 
