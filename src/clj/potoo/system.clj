@@ -20,8 +20,9 @@
         {:datomic-connection :db}))))
 
 (defn -main [& args]
-  (.start
-    (new-system
-      {:db-uri   "datomic:mem://localhost:4334/potoos"
-       :port 8081
-       :join?    true})))
+  (let [port (Integer/parseInt (get (System/getenv) "PORT" "8081"))]
+    (.start
+      (new-system
+        {:db-uri "datomic:mem://localhost:4334/potoos"
+         :port   port
+         :join?  true}))))
