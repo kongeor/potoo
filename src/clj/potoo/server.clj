@@ -3,6 +3,7 @@
             [ring.adapter.jetty :refer [run-jetty]]
             [bidi.ring :refer [make-handler]]
             [ring.middleware.json :refer [wrap-json-response]]
+            [ring.middleware.resource :refer [wrap-resource]]
             [ring.util.response :refer [response]]
             [potoo.datomic :as db]
             [taoensso.timbre :as log]))
@@ -30,7 +31,10 @@
   (fn [req] (handler (assoc req :db-conn conn))))
 
 (defn potoo-handler [conn]
-  (wrap-json-response (wrap-connection (make-handler routes) conn)))
+  (-> (make-handler routes)
+      (wrap-connection conn)
+      (wrap-resource "public")
+      wrap-json-response))
 
 ;; WebServer
 
