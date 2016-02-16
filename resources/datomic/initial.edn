@@ -5,4 +5,8 @@
  {:db/id #db/id[:db.part/user]
   :pot/created #inst "2015-09-11T19:44:47.307-00:00"
   :pot/text "Ow man!"
-  :pot/author "Morty"}]
+  :pot/author "Morty"}
+ {:db/id #db/id[:db.part/user]
+  :pot/created #inst "2015-09-11T19:44:47.307-00:00"
+  :pot/text "This is principal Vagina. No relation."
+  :pot/author "Principal Vagina"}]
