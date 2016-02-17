@@ -4,7 +4,7 @@
             [bidi.ring :refer [make-handler]]
             [ring.middleware.json :refer [wrap-json-response]]
             [ring.middleware.resource :refer [wrap-resource]]
-            [ring.util.response :refer [response]]
+            [ring.util.response :as resp]
             [potoo.datomic :as db]
             [taoensso.timbre :as log]))
 
@@ -18,12 +18,16 @@
 (defn get-potoos [req]
   (let [data (db/find-potoos (:db-conn req))]
     (log/info "Getting all potoos from" (:remote-addr req))
-    (response (fmt-potoos data))))
+    (resp/response (fmt-potoos data))))
+
+(defn index-handler [_]
+  (resp/file-response "index.html" {:root "resources/public"}))
 
 ;; Routes
 
 (def routes
-  ["/api" {"/potoos" {:get {[""] get-potoos}}}])
+  ["/" {""     index-handler
+        "api/" {"potoos" {:get get-potoos}}}])
 
 ;; Primary handler
 
