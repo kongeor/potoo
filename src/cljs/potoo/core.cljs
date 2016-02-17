@@ -1,4 +1,4 @@
-(ns potoo.core
+(ns ^:figwheel-always potoo.core
   (:require [reagent.core :as r]
             [ajax.core :refer [GET POST]]))
 

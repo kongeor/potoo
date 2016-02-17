@@ -16,16 +16,26 @@
   :source-paths ["src/clj"]
   :main potoo.system
   :min-lein-version "2.0.0"
-  :plugins [[lein-figwheel "0.5.0-1"]]
+  :plugins [[lein-figwheel "0.5.0-1"]
+            [lein-cljsbuild "1.1.2"]]
   :clean-targets [:target-path "out"]
   :cljsbuild {
               :builds [{:id "dev"
-                        :source-paths ["src/cljs"]
+                        :source-paths ["src/cljs" "src/cljs_dev"]
                         :figwheel true
-                        :compiler {:main "potoo.core"
+                        :compiler {:main "dev"
                                    :asset-path "js/out"
                                    :output-to "resources/public/js/app.js"
-                                   :output-dir "resources/public/js/out"}
-                        }]
+                                   :output-dir "resources/public/js/out"
+                                   :optimizations :none
+                                   :source-map true
+                                   :source-map-timestamp true
+                                   :cache-analysis true
+                                   }}
+                       {:id "min"
+                        :source-paths ["src/cljs"]
+                        :compiler {:output-to "resources/public/js/app.js"
+                                   :optimizations :advanced
+                                   :pretty-print false}}]
               }
   )
