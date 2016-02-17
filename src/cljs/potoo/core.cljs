@@ -8,6 +8,12 @@
      [{:key 1 :text "Ow man" :author "Morty"}
       {:key 2 :text "Don't judge" :author "Rick"}]}))
 
+(defn create-potoo [text]
+  (let [name "Mr. Meeseeks"
+        date (str (js/Date.))
+        potoo {:text text :name name :date date}]
+    (swap! app-state update-in [:potoos] conj potoo)))
+
 (defn potoo [p]
   [:li
    [:span (:text p)]
