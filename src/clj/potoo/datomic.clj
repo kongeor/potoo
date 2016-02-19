@@ -9,17 +9,43 @@
 ;; Queries
 
 (defn find-potoos [conn]
-  (d/q '[:find ?text ?author ?created
+  (d/q '[:find ?text ?name ?created
          :where [?p :potoo/text ?text]
-                [?p :potoo/author ?author]
-                [?p :potoo/created ?created]]
+                [?p :potoo/created ?created]
+                [?u :user/potoos ?p]
+                [?u :user/name ?name]]
        (d/db conn)))
 
-(defn create-potoo [conn text author when]
+(defn find-potoos-for-user [conn name]
+  (d/q '[:find ?text ?created
+         :in $ ?name
+         :where [?u :user/name ?name]
+                [?u :user/potoos ?p]
+                [?p :potoo/text ?text]
+                [?p :potoo/created ?created]]
+       (d/db conn)
+       name))
+
+(defn find-user-id [conn name]
+  (ffirst
+    (d/q '[:find ?uid
+           :in $ ?name
+           :where [?uid :user/name ?name]]
+         (d/db conn)
+         name)))
+
+(defn create-user [conn name password]
   @(d/transact conn [{:db/id (d/tempid :db.part/user)
-                      :potoo/text text
-                      :potoo/author author
-                      :potoo/created when}]))
+                      :user/name name
+                      :user/password password}]))
+
+(defn create-potoo [conn text name date]
+  (let [potoo-id (d/tempid :db.part/user)]
+    @(d/transact conn [{:db/id potoo-id
+                        :potoo/text text
+                        :potoo/created date}
+                       {:db/id (find-user-id conn name)
+                        :user/potoos potoo-id}])))
 
 ;; Component
 
