@@ -1,1 +1,1 @@
-web: lein do cljsbuild once min, with-profile production trampoline run
+web: java $JVM_OPTS -jar target/potoo-standalone.jar potoo.system

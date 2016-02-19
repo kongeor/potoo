@@ -19,6 +19,9 @@
   :plugins [[lein-figwheel "0.5.0-1"]
             [lein-cljsbuild "1.1.2"]]
   :clean-targets [:target-path "out"]
+  :uberjar-name "potoo-standalone.jar"
+  :profiles {:uberjar {:aot :all}}
+  :prep-tasks ["compile" ["cljsbuild" "once" "min"]]
   :cljsbuild {
               :builds [{:id "dev"
                         :source-paths ["src/cljs" "src/cljs_dev"]
