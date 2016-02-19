@@ -2,7 +2,9 @@
   (:require [datomic.api :as d]
             [com.stuartsierra.component :as component]
             [clojure.java.io :as io]
-            [taoensso.timbre :as log])
+            [taoensso.timbre :as log]
+            [clj-time.coerce :as c]
+            [clj-time.core :as t])
   (:import datomic.Util))
 
 
@@ -47,16 +49,29 @@
                        {:db/id (find-user-id conn name)
                         :user/potoos potoo-id}])))
 
+;; Fixtures
+
+(defn create-fixture-data [conn]
+  (let [date (c/to-date (t/date-time 1986 10 14 4 3 27 456))]
+    (create-user conn "Morty" "")
+    (create-user conn "Rick" "")
+    (create-user conn "Jerry" "")
+    (create-potoo conn "Ohh yea, you gotta get schwifty." "Rick" date)
+    (create-potoo conn "Wubbalubbadubdub" "Rick" date)
+    (create-potoo conn "Don't be trippin dog we got you" "Morty" date)
+    (create-potoo conn "It probably has space aids" "Jerry" date)))
+
 ;; Component
 
-(defrecord DatomicDatabase [uri schema initial-data db-conn]
+(defrecord DatomicDatabase [uri schema create-fixtures db-conn]
   component/Lifecycle
   (start [component]
     (log/info "Creating database connection to" uri)
     (d/create-database uri)
     (let [c (d/connect uri)]
       @(d/transact c schema)
-      ;@(d/transact c initial-data)
+      (when create-fixtures
+        (create-fixture-data c))
       (assoc component :db-conn c)))
   (stop [component]
     component))
@@ -65,7 +80,14 @@
   (DatomicDatabase.
     db-uri
     (first (Util/readAll (io/reader (io/resource "datomic/schema.edn"))))
-    (first (Util/readAll (io/reader (io/resource "datomic/initial.edn"))))
+    true
+    nil))
+
+(defn new-empty-database [db-uri]
+  (DatomicDatabase.
+    db-uri
+    (first (Util/readAll (io/reader (io/resource "datomic/schema.edn"))))
+    false
     nil))
 
 (comment

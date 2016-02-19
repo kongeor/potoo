@@ -8,7 +8,7 @@
 (defn create-test-db []
   (let [uri "datomic:mem://localhost:4334/test"
         _ (d/delete-database uri)
-        datomic (new-database uri)]
+        datomic (new-empty-database uri)]
     (-> (.start datomic) :db-conn)))
 
 (deftest user-tests
