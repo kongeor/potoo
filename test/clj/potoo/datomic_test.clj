@@ -33,7 +33,7 @@
           _ (create-user conn "Rick" "")
           _ (create-potoo conn "Foo" "Rick" date)
           _ (create-potoo conn "Bar" "Rick" date)
-          _ (create-potoo conn "Bar" "Morty" date)]
+          _ (create-potoo conn "Baz" "Morty" date)]
       (is (= #{["Foo" #inst "1986-10-14T04:03:27.456-00:00"]
                ["Bar" #inst "1986-10-14T04:03:27.456-00:00"]}
              (find-potoos-for-user conn "Rick"))))))
