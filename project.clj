@@ -12,7 +12,8 @@
                  [ring/ring "1.4.0"]
                  [ring/ring-json "0.4.0"]
                  [bidi "1.25.0"]
-                 [com.taoensso/timbre "4.2.1"]]
+                 [com.taoensso/timbre "4.2.1"]
+                 [clj-time "0.11.0"]]
   :source-paths ["src/clj"]
   :main potoo.system
   :min-lein-version "2.0.0"

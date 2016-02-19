@@ -15,6 +15,12 @@
                 [?p :pot/created ?created]]
        (d/db conn)))
 
+(defn create-potoo [conn text author when]
+  @(d/transact conn [{:db/id (d/tempid :db.part/user)
+                      :pot/text text
+                      :pot/author author
+                      :pot/created when}]))
+
 ;; Component
 
 (defrecord DatomicDatabase [uri schema initial-data db-conn]
@@ -24,7 +30,7 @@
     (d/create-database uri)
     (let [c (d/connect uri)]
       @(d/transact c schema)
-      @(d/transact c initial-data)
+      ;@(d/transact c initial-data)
       (assoc component :db-conn c)))
   (stop [component]
     component))
