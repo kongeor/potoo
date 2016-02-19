@@ -2,44 +2,38 @@
   (:require [reagent.core :as r]
             [ajax.core :refer [GET POST]]))
 
-(def app-state
-  (r/atom
-    {:potoos
-     [{:key 1 :text "Ow man" :author "Morty"}
-      {:key 2 :text "Don't judge" :author "Rick"}]}))
-
-(defn create-potoo [text]
-  (let [name "Mr. Meeseeks"
-        date (str (js/Date.))
-        potoo {:text text :name name :date date}]
-    (swap! app-state update-in [:potoos] conj potoo)))
+(defonce app-state
+  (r/atom {:potoos []}))
 
 (defn potoo [p]
-  [:li
-   [:span (:text p)]
-   [:span ", "]
-   [:span (:name p)]
-   [:span ", "]
-   [:span (:date p)]])
+  (let [{:keys [text name date]} p]
+    [:li
+     [:span (str text ", " name ", " date)]]))
 
 (defn potoo-list []
-  [:div
-   [:h1 "Potooooooos!"]
-   [:ul
-    (for [p (:potoos @app-state)]
-      [potoo p])]])
+  (fn []
+    (GET "/api/potoos" {:keywords? true
+                        :response-format :json
+                        :handler #(swap! app-state assoc :potoos %)})
+    [:div
+     [:h1 "Potooooooos!"]
+     [:ul
+      (for [p (:potoos @app-state)]
+        ^{:key p} [potoo p])]]))
 
-(defn start []
-  (r/render-component
+(defn ^:export run []
+  (r/render
     [potoo-list]
-    (.getElementById js/document "app")))
+    (js/document.getElementById "app")))
 
-(start)
+(run)
 
-(defn handler [response]
-  (swap! app-state assoc :potoos response))
+;; demo
 
-(GET "/api/potoos" {:keywords? true
-                    :response-format :json
-                    :handler handler})
+(comment
+  (defn cp [text]
+    (let [name "Mr. Meeseeks"
+          date (str (js/Date.))
+          potoo {:key "zxc" :text text :name name :date date}]
+      (swap! app-state update-in [:potoos] conj potoo))))
 
