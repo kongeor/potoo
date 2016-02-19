@@ -26,7 +26,7 @@
               :builds [{:id "dev"
                         :source-paths ["src/cljs" "src/cljs_dev"]
                         :figwheel true
-                        :compiler {:main "dev"
+                        :compiler {:main "dev.dev"
                                    :asset-path "js/out"
                                    :output-to "resources/public/js/app.js"
                                    :output-dir "resources/public/js/out"
