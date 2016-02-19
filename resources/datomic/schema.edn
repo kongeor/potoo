@@ -1,24 +1,24 @@
 [
- ;; Pots
+ ;; Potoos
 
  {:db/id #db/id[:db.part/db]
-  :db/ident :pot/created
+  :db/ident :potoo/created
   :db/valueType :db.type/instant
   :db/cardinality :db.cardinality/one
-  :db/doc "A pot's creation timestamp"
+  :db/doc "A potoo's creation timestamp"
   :db.install/_attribute :db.part/db}
 
  {:db/id #db/id[:db.part/db]
-  :db/ident :pot/text
+  :db/ident :potoo/text
   :db/valueType :db.type/string
   :db/cardinality :db.cardinality/one
-  :db/doc "A pot's text"
+  :db/doc "A potoo's text"
   :db.install/_attribute :db.part/db}
 
  {:db/id #db/id[:db.part/db]
-  :db/ident :pot/author
+  :db/ident :potoo/author
   :db/valueType :db.type/string
   :db/cardinality :db.cardinality/one
-  :db/doc "A pot's author"
+  :db/doc "A potoo's author"
   :db.install/_attribute :db.part/db}
  ]

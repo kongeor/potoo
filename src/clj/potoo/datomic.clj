@@ -10,16 +10,16 @@
 
 (defn find-potoos [conn]
   (d/q '[:find ?text ?author ?created
-         :where [?p :pot/text ?text]
-                [?p :pot/author ?author]
-                [?p :pot/created ?created]]
+         :where [?p :potoo/text ?text]
+                [?p :potoo/author ?author]
+                [?p :potoo/created ?created]]
        (d/db conn)))
 
 (defn create-potoo [conn text author when]
   @(d/transact conn [{:db/id (d/tempid :db.part/user)
-                      :pot/text text
-                      :pot/author author
-                      :pot/created when}]))
+                      :potoo/text text
+                      :potoo/author author
+                      :potoo/created when}]))
 
 ;; Component
 
