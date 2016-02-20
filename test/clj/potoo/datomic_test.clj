@@ -1,4 +1,4 @@
-(ns clj.potoo.datomic-test
+(ns potoo.datomic-test
   (:require [clojure.test :refer :all]
             [potoo.datomic :refer :all]
             [datomic.api :as d]

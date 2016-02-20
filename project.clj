@@ -15,6 +15,7 @@
                  [com.taoensso/timbre "4.2.1"]
                  [clj-time "0.11.0"]]
   :source-paths ["src/clj"]
+  :test-paths ["test/clj"]
   :main potoo.system
   :min-lein-version "2.0.0"
   :plugins [[lein-figwheel "0.5.0-1"]
