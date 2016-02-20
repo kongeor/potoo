@@ -12,28 +12,25 @@
      [:span (str text ", " name ", " date)]]))
 
 (defn create-potoo [text]
-    (let [name "Mr. Meeseeks"
-          date (str (js/Date.))
-          potoo {:key "zxc" :text text :name name :date date}]
-      (swap! app-state update-in [:potoos] conj potoo)
-      (POST "/api/potoos" {:params {:text text}
-                           :keywords? true
-                           :format :json
-                           :response-format :json
-                           :handler #(js/console.log %)})))
+  (POST "/api/potoos" {:params {:text text}
+                       :keywords? true
+                       :format :json
+                       :response-format :json
+                       :handler #(swap! app-state update-in [:potoos] conj %)}))
 
 (defn potoo-form [text]
-  (let [text-empty? (-> @text str/trim empty?)]
-    [:div
-     [:input {:type      "text" :value @text
-              :on-change #(reset! text (-> % .-target .-value))}]
-     [:input {:type     "button" :value "Submit" :disabled text-empty?
-              :on-click #(create-potoo @text)}]]))
+  [:div
+   [:input {:type "text" :value @text
+            :on-change #(reset! text (-> % .-target .-value))}]
+   [:input {:type "button"
+            :value "Submit"
+            :disabled (-> @text str/trim empty?)
+            :on-click #(create-potoo @text)}]])
 
 (defn potoo-list []
   [:div
    [:ul
-    (for [p (:potoos @app-state)]
+    (for [p (sort-by :date (:potoos @app-state))]
       ^{:key p} [potoo p])]])
 
 (def potoo-list-initial
