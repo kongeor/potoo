@@ -15,6 +15,11 @@
 (defn- fmt-potoos [data]
   (map (partial zipmap [:text :name :date]) data))
 
+(defn unauthorized []
+  {:status  401
+   :headers {}
+   :body    nil})
+
 ;; Handlers
 
 (defn get-potoos [req]
@@ -29,6 +34,13 @@
         _ (db/create-potoo (:db-conn req) text name date)]
     (resp/response {:text text :name name :date date})))
 
+(defn create-session [req]
+  (let [conn (:db-conn req)
+        {:keys [username password]} (-> req :body)]
+    (if (db/find-user-id-by-name-and-pass conn username password)
+      (resp/response {:name username})
+      (unauthorized))))
+
 (defn index-handler [_]
   (resp/file-response "index.html" {:root "resources/public"}))
 
@@ -37,7 +49,8 @@
 (def routes
   ["/" {""     index-handler
         "api/" {"potoos" {:get get-potoos
-                          :post create-potoo}}}])
+                          :post create-potoo}
+                "sessions" {:post create-session}}}])
 
 ;; Primary handler
 

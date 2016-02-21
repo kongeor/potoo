@@ -4,7 +4,8 @@
             [ajax.core :refer [GET POST]]))
 
 (defonce app-state
-  (r/atom {:potoos []}))
+  (r/atom {:potoos []
+           :user nil}))
 
 (defn potoo [p]
   (let [{:keys [text name date]} p]
@@ -18,14 +19,43 @@
                        :response-format :json
                        :handler #(swap! app-state update-in [:potoos] conj %)}))
 
+(defn login-form [name pass]
+  (if-let [user (:user @app-state)]
+    [:div
+     [:span (str "Welcome " user)]
+     [:input {:type "button"
+              :value "Logout"
+              :on-click #(swap! app-state assoc :user nil)}]]
+    [:form
+     [:div
+      [:label "Username"]
+      [:input {:type      "text" :value @name
+               :on-change #(reset! name (-> % .-target .-value))}]]
+     [:div
+      [:label "Password"]
+      [:input {:type      "password" :value @pass
+               :on-change #(reset! pass (-> % .-target .-value))}]]
+     [:div
+      [:input {:type     "button"
+               :value    "Login"
+               :on-click (fn []
+                           (POST "/api/sessions"
+                                 {:params          {:username @name :password @pass}
+                                  :keywords?       true
+                                  :format          :json
+                                  :response-format :json
+                                  :handler         #(swap! app-state assoc :user (:name %))}))}]]]))
+
 (defn potoo-form [text]
-  [:div
-   [:input {:type "text" :value @text
-            :on-change #(reset! text (-> % .-target .-value))}]
-   [:input {:type "button"
-            :value "Submit"
-            :disabled (-> @text str/trim empty?)
-            :on-click #(create-potoo @text)}]])
+  (if (:user @app-state)
+    [:div
+     [:input {:type      "text" :value @text
+              :on-change #(reset! text (-> % .-target .-value))}]
+     [:input {:type     "button"
+              :value    "Submit"
+              :disabled (-> @text str/trim empty?)
+              :on-click #(create-potoo @text)}]]
+    [:p "Please login to post a potoo"]))
 
 (defn potoo-list []
   [:div
@@ -42,9 +72,12 @@
                            :handler #(swap! app-state assoc :potoos %)}))}))
 
 (defn potoo-wrapper []
-  (let [text (r/atom "")]
+  (let [text (r/atom "")
+        name (r/atom "")
+        pass (r/atom "")]
     [:div
      [:h1 "Potooooooos!"]
+     [login-form name pass]
      [potoo-form text]
      [potoo-list-initial]]))
 

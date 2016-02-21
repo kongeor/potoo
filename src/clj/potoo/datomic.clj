@@ -36,6 +36,16 @@
          (d/db conn)
          name)))
 
+(defn find-user-id-by-name-and-pass [conn username password]
+  (ffirst
+    (d/q '[:find ?uid
+           :in $ ?username ?password
+           :where [?uid :user/name ?username]
+                  [?uid :user/password ?password]]
+         (d/db conn)
+         username
+         password)))
+
 (defn create-user [conn name password]
   @(d/transact conn [{:db/id (d/tempid :db.part/user)
                       :user/name name
@@ -54,7 +64,7 @@
 (defn create-fixture-data [conn]
   (let [date (c/to-date (t/date-time 1986 10 14 4 3 27 456))]
     (create-user conn "Morty" "")
-    (create-user conn "Rick" "")
+    (create-user conn "Rick" "Rick")
     (create-user conn "Jerry" "")
     (create-potoo conn "Ohh yea, you gotta get schwifty." "Rick" date)
     (create-potoo conn "Wubbalubbadubdub" "Rick" date)
@@ -93,4 +103,4 @@
 (comment
   (let [datomic (new-database "datomic:mem://localhost:4334/potoos")
         conn (-> (.start datomic) :db-conn)]
-       (find-potoos conn)))
+       (find-user-id-by-name-and-pass conn "Rick" "Rick")))
