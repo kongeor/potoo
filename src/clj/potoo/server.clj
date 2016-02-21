@@ -46,6 +46,11 @@
           (assoc :session session))
       (unauthorized))))
 
+(defn delete-session [{session :session}]
+  (let [updated-session (assoc session :identity nil)]
+    (-> (resp/response nil)
+        (assoc :session updated-session))))
+
 (defn get-all-data [req]
   (resp/response {:potoos (fmt-potoos (db/find-potoos (:db-conn req)))
                   :user   (:identity req)}))
@@ -60,7 +65,8 @@
         "api" {"" {:get get-all-data}
                "/potoos" {:get get-potoos
                           :post create-potoo}
-                "/sessions" {:post create-session}}}])
+                "/sessions" {:post create-session
+                             :delete delete-session}}}])
 
 ;; Primary handler
 

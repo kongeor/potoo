@@ -1,7 +1,7 @@
 (ns ^:figwheel-always potoo.core
   (:require [reagent.core :as r]
             [clojure.string :as str]
-            [ajax.core :refer [GET POST]]))
+            [ajax.core :refer [GET POST DELETE]]))
 
 (defonce app-state
   (r/atom {:potoos []
@@ -23,9 +23,10 @@
   (if-let [user (:user @app-state)]
     [:div
      [:span (str "Welcome " user)]
-     [:input {:type "button"
-              :value "Logout"
-              :on-click #(swap! app-state assoc :user nil)}]]
+     [:input {:type     "button"
+              :value    "Logout"
+              :on-click (fn [] (DELETE "/api/sessions"
+                                       {:handler #(swap! app-state assoc :user nil)}))}]]
     [:form
      [:div
       [:label "Username"]
