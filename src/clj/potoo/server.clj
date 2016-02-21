@@ -37,6 +37,14 @@
         _ (db/create-potoo (:db-conn req) text name date)]
     (resp/response {:text text :name name :date date})))
 
+(defn create-user [req]
+  (let [conn (:db-conn req)
+        {:keys [username password]} (:body req)
+        session (:session req)
+        _ (db/create-user conn username password)]
+    (-> (resp/response {:name username})
+        (assoc :session (assoc session :identity username)))))
+
 (defn create-session [req]
   (let [conn (:db-conn req)
         {:keys [username password]} (-> req :body)
@@ -65,6 +73,7 @@
         "api" {"" {:get get-all-data}
                "/potoos" {:get get-potoos
                           :post create-potoo}
+               "/users" {:post create-user}
                 "/sessions" {:post create-session
                              :delete delete-session}}}])
 

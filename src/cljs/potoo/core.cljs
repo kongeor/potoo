@@ -19,7 +19,24 @@
                        :response-format :json
                        :handler #(swap! app-state update-in [:potoos] conj %)}))
 
-(defn login-form [name pass]
+(defn generic-form [name pass action handler]
+  [:div
+   [:h3 action]
+   [:form
+    [:div
+     [:label "Username"]
+     [:input {:type      "text" :value @name
+              :on-change #(reset! name (-> % .-target .-value))}]]
+    [:div
+     [:label "Password"]
+     [:input {:type      "password" :value @pass
+              :on-change #(reset! pass (-> % .-target .-value))}]]
+    [:div
+     [:input {:type     "button"
+              :value    action
+              :on-click handler}]]]])
+
+(defn register-login-form []
   (if-let [user (:user @app-state)]
     [:div
      [:span (str "Welcome " user)]
@@ -27,25 +44,25 @@
               :value    "Logout"
               :on-click (fn [] (DELETE "/api/sessions"
                                        {:handler #(swap! app-state assoc :user nil)}))}]]
-    [:form
-     [:div
-      [:label "Username"]
-      [:input {:type      "text" :value @name
-               :on-change #(reset! name (-> % .-target .-value))}]]
-     [:div
-      [:label "Password"]
-      [:input {:type      "password" :value @pass
-               :on-change #(reset! pass (-> % .-target .-value))}]]
-     [:div
-      [:input {:type     "button"
-               :value    "Login"
-               :on-click (fn []
-                           (POST "/api/sessions"
-                                 {:params          {:username @name :password @pass}
-                                  :keywords?       true
-                                  :format          :json
-                                  :response-format :json
-                                  :handler         #(swap! app-state assoc :user (:name %))}))}]]]))
+    (let [lname (r/atom "")
+          lpass (r/atom "")
+          rname (r/atom "")
+          rpass (r/atom "")]
+      [:div
+       [generic-form rname rpass "Register" (fn []
+                                              (POST "/api/users"
+                                                    {:params          {:username @rname :password @rpass}
+                                                     :keywords?       true
+                                                     :format          :json
+                                                     :response-format :json
+                                                     :handler         #(swap! app-state assoc :user (:name %))}))]
+       [generic-form lname lpass "Login" (fn []
+                                           (POST "/api/sessions"
+                                                 {:params          {:username @lname :password @lpass}
+                                                  :keywords?       true
+                                                  :format          :json
+                                                  :response-format :json
+                                                  :handler         #(swap! app-state assoc :user (:name %))}))]])))
 
 (defn potoo-form [text]
   (if (:user @app-state)
@@ -69,7 +86,7 @@
 (defn potoo-list []
   [:div
    (for [[name potoos] (seq (group-by :name (:potoos @app-state)))]
-     [potoos-for-user name potoos])])
+     ^{:key name} [potoos-for-user name potoos])])
 
 (def potoo-list-initial
   (with-meta potoo-list
@@ -80,12 +97,10 @@
                     :handler #(reset! app-state %)}))}))
 
 (defn potoo-wrapper []
-  (let [text (r/atom "")
-        name (r/atom "")
-        pass (r/atom "")]
+  (let [text (r/atom "")]
     [:div
      [:h1 "Potooooooos!"]
-     [login-form name pass]
+     [register-login-form]
      [potoo-form text]
      [potoo-list-initial]]))
 
