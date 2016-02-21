@@ -63,9 +63,9 @@
 
 (defn create-fixture-data [conn]
   (let [date (c/to-date (t/date-time 1986 10 14 4 3 27 456))]
-    (create-user conn "Morty" "")
+    (create-user conn "Morty" "Morty")
     (create-user conn "Rick" "Rick")
-    (create-user conn "Jerry" "")
+    (create-user conn "Jerry" "Jerry")
     (create-potoo conn "Ohh yea, you gotta get schwifty." "Rick" date)
     (create-potoo conn "Wubbalubbadubdub" "Rick" date)
     (create-potoo conn "Don't be trippin dog we got you" "Morty" date)

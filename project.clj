@@ -13,7 +13,8 @@
                  [ring/ring-json "0.4.0"]
                  [bidi "1.25.0"]
                  [com.taoensso/timbre "4.2.1"]
-                 [clj-time "0.11.0"]]
+                 [clj-time "0.11.0"]
+                 [buddy/buddy-auth "0.9.0"]]
   :source-paths ["src/clj"]
   :test-paths ["test/clj"]
   :main potoo.system

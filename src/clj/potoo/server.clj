@@ -4,7 +4,10 @@
             [bidi.ring :refer [make-handler]]
             [ring.middleware.json :refer [wrap-json-response wrap-json-body]]
             [ring.middleware.resource :refer [wrap-resource]]
+            [ring.middleware.session :refer [wrap-session]]
             [ring.util.response :as resp]
+            [buddy.auth.middleware :refer [wrap-authentication]]
+            [buddy.auth.backends.session :refer [session-backend]]
             [potoo.datomic :as db]
             [taoensso.timbre :as log]
             [clj-time.core :as t]
@@ -28,7 +31,7 @@
     (resp/response (fmt-potoos data))))
 
 (defn create-potoo [req]
-  (let [name "Rick"
+  (let [name (:identity req)
         date (c/to-date (t/now))
         text (-> req :body :text)
         _ (db/create-potoo (:db-conn req) text name date)]
@@ -36,9 +39,11 @@
 
 (defn create-session [req]
   (let [conn (:db-conn req)
-        {:keys [username password]} (-> req :body)]
+        {:keys [username password]} (-> req :body)
+        session (assoc (:session req) :identity username)]
     (if (db/find-user-id-by-name-and-pass conn username password)
-      (resp/response {:name username})
+      (-> (resp/response {:name username})
+          (assoc :session session))
       (unauthorized))))
 
 (defn index-handler [_]
@@ -54,6 +59,8 @@
 
 ;; Primary handler
 
+(def backend (session-backend))
+
 (defn wrap-connection [handler conn]
   (fn [req] (handler (assoc req :db-conn conn))))
 
@@ -62,6 +69,8 @@
       (wrap-connection conn)
       (wrap-resource "public")
       (wrap-json-body {:keywords? true :bigdecimals? true})
+      (wrap-authentication backend)
+      wrap-session
       wrap-json-response))
 
 ;; WebServer
