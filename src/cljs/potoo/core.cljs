@@ -50,6 +50,7 @@
 (defn potoo-form [text]
   (if (:user @app-state)
     [:div
+     [:h3 "Potoo it!"]
      [:input {:type      "text" :value @text
               :on-change #(reset! text (-> % .-target .-value))}]
      [:input {:type     "button"
@@ -58,11 +59,17 @@
               :on-click #(create-potoo @text)}]]
     [:p "Please login to post a potoo"]))
 
+(defn potoos-for-user [user potoos]
+  [:div
+   [:h3 user]
+   [:ul
+    (for [p (sort-by :date potoos)]
+      ^{:key p} [potoo p])]])
+
 (defn potoo-list []
   [:div
-   [:ul
-    (for [p (sort-by :date (:potoos @app-state))]
-      ^{:key p} [potoo p])]])
+   (for [[name potoos] (seq (group-by :name (:potoos @app-state)))]
+     [potoos-for-user name potoos])])
 
 (def potoo-list-initial
   (with-meta potoo-list
