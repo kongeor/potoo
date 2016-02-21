@@ -46,6 +46,10 @@
           (assoc :session session))
       (unauthorized))))
 
+(defn get-all-data [req]
+  (resp/response {:potoos (fmt-potoos (db/find-potoos (:db-conn req)))
+                  :user   (:identity req)}))
+
 (defn index-handler [_]
   (resp/file-response "index.html" {:root "resources/public"}))
 
@@ -53,9 +57,10 @@
 
 (def routes
   ["/" {""     index-handler
-        "api/" {"potoos" {:get get-potoos
+        "api" {"" {:get get-all-data}
+               "/potoos" {:get get-potoos
                           :post create-potoo}
-                "sessions" {:post create-session}}}])
+                "/sessions" {:post create-session}}}])
 
 ;; Primary handler
 

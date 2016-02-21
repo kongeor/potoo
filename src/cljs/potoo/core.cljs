@@ -67,9 +67,9 @@
   (with-meta potoo-list
     {:get-initial-state
      (fn [_]
-       (GET "/api/potoos" {:keywords? true
-                           :response-format :json
-                           :handler #(swap! app-state assoc :potoos %)}))}))
+       (GET "/api" {:keywords? true
+                    :response-format :json
+                    :handler #(reset! app-state %)}))}))
 
 (defn potoo-wrapper []
   (let [text (r/atom "")
