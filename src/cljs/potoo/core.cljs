@@ -25,14 +25,17 @@
    [:form
     [:div
      [:label "Username"]
-     [:input {:type      "text" :value @name
+     [:input {:class "u-full-width"
+              :type      "text" :value @name
               :on-change #(reset! name (-> % .-target .-value))}]]
     [:div
      [:label "Password"]
-     [:input {:type      "password" :value @pass
+     [:input {:class "u-full-width"
+              :type      "password" :value @pass
               :on-change #(reset! pass (-> % .-target .-value))}]]
     [:div
-     [:input {:type     "button"
+     [:input {:class "button-primary"
+              :type     "button"
               :value    action
               :on-click handler}]]]])
 
@@ -48,21 +51,23 @@
           lpass (r/atom "")
           rname (r/atom "")
           rpass (r/atom "")]
-      [:div
-       [generic-form rname rpass "Register" (fn []
-                                              (POST "/api/users"
-                                                    {:params          {:username @rname :password @rpass}
-                                                     :keywords?       true
-                                                     :format          :json
-                                                     :response-format :json
-                                                     :handler         #(swap! app-state assoc :user (:name %))}))]
-       [generic-form lname lpass "Login" (fn []
-                                           (POST "/api/sessions"
-                                                 {:params          {:username @lname :password @lpass}
-                                                  :keywords?       true
-                                                  :format          :json
-                                                  :response-format :json
-                                                  :handler         #(swap! app-state assoc :user (:name %))}))]])))
+      [:div.row
+       [:div.one-half.column
+        [generic-form rname rpass "Register" (fn []
+                                               (POST "/api/users"
+                                                     {:params          {:username @rname :password @rpass}
+                                                      :keywords?       true
+                                                      :format          :json
+                                                      :response-format :json
+                                                      :handler         #(swap! app-state assoc :user (:name %))}))]]
+       [:div.one-half.column
+        [generic-form lname lpass "Login" (fn []
+                                            (POST "/api/sessions"
+                                                  {:params          {:username @lname :password @lpass}
+                                                   :keywords?       true
+                                                   :format          :json
+                                                   :response-format :json
+                                                   :handler         #(swap! app-state assoc :user (:name %))}))]]])))
 
 (defn potoo-form [text]
   (if (:user @app-state)
@@ -98,7 +103,7 @@
 
 (defn potoo-wrapper []
   (let [text (r/atom "")]
-    [:div
+    [:div.container
      [:h1 "Potooooooos!"]
      [register-login-form]
      [potoo-form text]
