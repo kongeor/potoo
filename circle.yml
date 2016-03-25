@@ -1,3 +1,9 @@
+deployment:
+  staging:
+    branch: master
+    heroku:
+      appname: secret-everglades-10047
+
 test:
   override:
     - lein test
