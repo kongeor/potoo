@@ -1,3 +1,5 @@
+[![Circle CI](https://circleci.com/gh/kongeor/potoo.svg?style=svg)](https://circleci.com/gh/kongeor/potoo)
+
 # potoo
 
 A Clojure library designed to ... well, that part is up to you.
