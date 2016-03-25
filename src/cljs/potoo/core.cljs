@@ -1,6 +1,8 @@
 (ns ^:figwheel-always potoo.core
   (:require [reagent.core :as r]
             [clojure.string :as str]
+            [bouncer.core :as b]
+            [bouncer.validators :as v]
             [ajax.core :refer [GET POST DELETE]]))
 
 (defonce app-state
@@ -18,6 +20,46 @@
                        :format :json
                        :response-format :json
                        :handler #(swap! app-state update-in [:potoos] conj %)}))
+
+(defn validate-register [data errors]
+  (let [val (b/validate data
+                        :username v/required
+                        :password v/required)]
+    (reset! errors (first val))))
+
+(defn register [register-data errors]
+  (when-not (validate-register register-data errors)
+    (POST "/api/users"
+          {:params          register-data
+           :keywords?       true
+           :format          :json
+           :response-format :json
+           :handler         #(swap! app-state assoc :user (:username register-data))})))
+
+(defn register-form [register-data errors]
+  [:div
+   [:h3 "Register"]
+   (when @errors
+     [:ul
+      (for [e (vals @errors)]
+        [:li {:style {:color "red"}} (first e)])])
+   [:form
+    [:div
+     [:label "Username"]
+     [:input {:class     "u-full-width"
+              :type      "text" :value (:username @register-data)
+              :on-change #(swap! register-data assoc :username (-> % .-target .-value))}]]
+    [:div
+     [:label "Password"]
+     [:input {:class "u-full-width"
+              :type  "password" :value (:password @register-data)
+              :on-change #(swap! register-data assoc :password (-> % .-target .-value))}]]
+    [:div
+     [:input {:class    "button-primary"
+              :type     "button"
+              :value    "Register"
+              :on-click #(register @register-data errors)
+              }]]]])
 
 (defn generic-form [name pass action handler]
   [:div
@@ -49,17 +91,11 @@
                                        {:handler #(swap! app-state assoc :user nil)}))}]]
     (let [lname (r/atom "")
           lpass (r/atom "")
-          rname (r/atom "")
-          rpass (r/atom "")]
+          register-data (r/atom {})
+          rerrors (r/atom nil)]
       [:div.row
        [:div.one-half.column
-        [generic-form rname rpass "Register" (fn []
-                                               (POST "/api/users"
-                                                     {:params          {:username @rname :password @rpass}
-                                                      :keywords?       true
-                                                      :format          :json
-                                                      :response-format :json
-                                                      :handler         #(swap! app-state assoc :user (:name %))}))]]
+        [register-form register-data rerrors]]
        [:div.one-half.column
         [generic-form lname lpass "Login" (fn []
                                             (POST "/api/sessions"

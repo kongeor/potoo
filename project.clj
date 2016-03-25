@@ -14,13 +14,14 @@
                  [bidi "1.25.0"]
                  [com.taoensso/timbre "4.2.1"]
                  [clj-time "0.11.0"]
-                 [buddy/buddy-auth "0.9.0"]]
+                 [buddy/buddy-auth "0.9.0"]
+                 [bouncer "1.0.0"]]
   :source-paths ["src/clj"]
   :test-paths ["test/clj"]
   :main potoo.system
   :min-lein-version "2.0.0"
   :plugins [[lein-figwheel "0.5.0-1"]
-            [lein-cljsbuild "1.1.2"]]
+            [lein-cljsbuild "1.1.3"]]
   :clean-targets [:target-path "out"]
   :uberjar-name "potoo-standalone.jar"
   :profiles {:uberjar {:aot :all}}
