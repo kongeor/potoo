@@ -8,6 +8,7 @@
                  [reagent "0.6.0-alpha"]
                  [cljs-ajax "0.5.3"]
                  [org.clojure/java.jdbc "0.6.0-alpha2"]
+                 [org.postgresql/postgresql "9.4.1208"]
                  [clojure.jdbc/clojure.jdbc-c3p0 "0.3.2"]
                  [migratus "0.8.14"]
                  [com.datomic/datomic-free "0.9.5344"]

@@ -9,6 +9,12 @@
   (:import (java.net URI)))
 
 ;; =============
+;; Queries
+
+(defn find-all-users [db]
+  (jdbc/query db ["select * from users"]))
+
+;; =============
 ;; DB connection
 
 (defn- get-user-and-password [uri]
@@ -29,7 +35,7 @@
 
 (defn- migrate-db [uri]
   (let [config {:store :database
-                :db (get-db-spec uri)}]
+                :db    (log/spy (get-db-spec uri))}]
     (log/info "Applying migrations")
     (migratus/migrate config)))
 
@@ -45,7 +51,7 @@
     (log/info "Connecting to Postgres.")
     (let [uri (get-db-uri uri)
           db (make-db-spec uri)]
-      #_(migrate-db uri)
+      (migrate-db uri)
       (assoc component :db-spec db)))
   (stop [component]
     (log/info "Closing the connection to Postgres")
@@ -57,5 +63,5 @@
 
 (comment
   (let [db (new-database "postgres://potoo:potoo@localhost:5432/potoo")
-        db (component/start db)]
-    (println db)))
+        db (:db-spec (component/start db))]
+    (find-all-users db)))
