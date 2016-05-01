@@ -5,3 +5,10 @@ CREATE TABLE users
     password VARCHAR(200),
     created_at timestamptz NOT NULL DEFAULT now()
 );
+;;--
+CREATE TABLE potoos
+(
+    user_id int references users(id),
+    text VARCHAR(140) NOT NULL,
+    created_at timestamptz NOT NULL DEFAULT now()
+)
