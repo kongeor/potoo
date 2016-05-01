@@ -1,7 +1,7 @@
-(ns dev
-  (:require [com.stuartsierra.component :as component]
-            [clojure.tools.namespace.repl :refer (refresh)]
-            [potoo.system :as system]))
+(ns user
+  (:require [clojure.tools.namespace.repl :refer (refresh)]
+            [potoo.system :as system]
+            [com.stuartsierra.component :as component]))
 
 (def system nil)
 
@@ -9,7 +9,8 @@
   (alter-var-root #'system
                   (constantly
                     (system/new-system
-                      {:db-uri   "datomic:mem://localhost:4334/potoos"
+                      {:db-uri "datomic:mem://localhost:4334/test"
+                       ; "datomic:free://localhost:4334/potoos1"
                        :port 8081
                        :join? false}))))
 
@@ -26,4 +27,4 @@
 
 (defn reset []
   (stop)
-  (refresh :after 'dev/go))
+  (refresh :after 'user/go))
