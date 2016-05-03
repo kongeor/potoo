@@ -1,4 +1,5 @@
 (ns potoo.db
+  (:refer-clojure :exclude [update])
   (:require
     [clojure.java.jdbc :as jdbc]
     [jdbc.pool.c3p0 :as pool]
@@ -15,10 +16,9 @@
 
 (defmacro with-sql-profile [func db sql]
   `(let [start# (. System (nanoTime))
-         _#      (log/debug ~sql)
          ret#   (~func ~db ~sql)
          time#  (/ (double (- (. System (nanoTime)) start#)) 1000000.0)]
-     (log/debug ~sql "- Query Time:" time# "msecs")
+     (log/debug ~sql "- Time:" time# "msecs")
      ret#))
 
 ;; =============
@@ -28,8 +28,11 @@
   (jdbc/query db ["select * from users"]))
 
 (defn find-all-potoos [db]
-  (let [sql (-> (select :*)
-                (from :potoos)
+  (let [sql (-> (select [:p.text :text]
+                        [:u.username :name]
+                        [:p.created_at :created_at])
+                (from [:potoos :p])
+                (left-join [:users :u] [:= :p.user_id :u.id])
                 sql/format)]
     (with-sql-profile jdbc/query db sql)))
 
@@ -38,23 +41,36 @@
                 (from :potoos)
                 (where [:= :user_id user_id])
                 sql/format)]
-    (with-query db sql)))
+    (with-sql-profile jdbc/query db sql)))
+
+(defn find-user-by-username-and-password [db username password]
+  (let [sql (-> (select :id :username)
+                (from :users)
+                (where [:= :username username]
+                       [:= :password password])
+                sql/format)]
+    (first (with-sql-profile jdbc/query db sql))))
+
+(defn find-user-by-username [db username]
+  (let [sql (-> (select :id :username)
+                (from :users)
+                (where [:= :username username])
+                sql/format)]
+    (first (with-sql-profile jdbc/query db sql))))
 
 (defn create-user [db username password]
   (let [sql (-> (insert-into :users)
                 (columns :username :password)
                 (values [[username password]])
                 sql/format)]
-    (log/debug sql)
-    (jdbc/execute! db sql)))
+    (with-sql-profile jdbc/execute! db sql)))
 
 (defn create-potoo [db user_id text]
   (let [sql (-> (insert-into :potoos)
                 (columns :user_id :text)
                 (values [[user_id text]])
                 sql/format)]
-    (log/debug sql)
-    (jdbc/execute! db sql)))
+    (with-sql-profile jdbc/execute! db sql)))
 
 ;; =============
 ;; DB connection
@@ -107,10 +123,11 @@
   (def db (-> (new-database "postgres://potoo:potoo@localhost:5432/potoo")
               component/start
               :db-spec)))
-
 (comment
-  (create-user db "saki" "saki")
+  (create-user db "saki1" "saki")
+  (find-user-by-username-and-password db "saki" "saki")
   (find-all-users db)
   (create-potoo db 2 "quux")
   (find-all-potoos db)
+  (find-user-by-username db "saki1")
   (find-potoos-for-user db 1))

@@ -9,8 +9,7 @@
   (alter-var-root #'system
                   (constantly
                     (system/new-system
-                      {:db-uri "datomic:mem://localhost:4334/test"
-                       ; "datomic:free://localhost:4334/potoos1"
+                      {:db-uri "postgres://potoo:potoo@localhost:5432/potoo"
                        :port 8081
                        :join? false}))))
 

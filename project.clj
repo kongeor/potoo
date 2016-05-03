@@ -12,7 +12,6 @@
                  [clojure.jdbc/clojure.jdbc-c3p0 "0.3.2"]
                  [migratus "0.8.14"]
                  [honeysql "0.6.3"]
-                 [com.datomic/datomic-free "0.9.5344"]
                  [com.stuartsierra/component "0.3.1"]
                  [ring/ring "1.4.0"]
                  [ring/ring-json "0.4.0"]

@@ -1,6 +1,6 @@
 (ns potoo.system
   (:require [com.stuartsierra.component :as component]
-            [potoo.datomic :as db]
+            [potoo.db :as db]
             [potoo.server :as server]
             [taoensso.timbre :as log])
   (:gen-class))
@@ -17,12 +17,12 @@
       :webserver
       (component/using
         (server/new-server web-opts)
-        {:datomic-connection :db}))))
+        {:postgres-connection :db}))))
 
 (defn -main [& args]
   (let [port (Integer/parseInt (get (System/getenv) "PORT" "8081"))]
     (.start
       (new-system
-        {:db-uri "datomic:mem://localhost:4334/potoos"
+        {:db-uri "postgres://potoo:potoo@localhost:5432/potoo"
          :port   port
          :join?  true}))))

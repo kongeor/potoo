@@ -8,15 +8,12 @@
             [ring.util.response :as resp]
             [buddy.auth.middleware :refer [wrap-authentication]]
             [buddy.auth.backends.session :refer [session-backend]]
-            [potoo.datomic :as db]
+            [potoo.db :as db]
             [taoensso.timbre :as log]
             [clj-time.core :as t]
             [clj-time.coerce :as c]))
 
 ;; Helpers
-
-(defn- fmt-potoos [data]
-  (map (partial zipmap [:text :name :date]) data))
 
 (defn unauthorized []
   {:status  401
@@ -26,32 +23,31 @@
 ;; Handlers
 
 (defn get-potoos [req]
-  (let [data (db/find-potoos (:db-conn req))]
+  (let [data (db/find-all-potoos (:db-conn req))]
     (log/info "Getting all potoos from" (:remote-addr req))
-    (resp/response (fmt-potoos data))))
+    (resp/response data)))
 
 (defn create-potoo [req]
-  (let [name (:identity req)
-        date (c/to-date (t/now))
+  (let [{:keys [:id :username]} (-> (:identity req))
         text (-> req :body :text)
-        _ (db/create-potoo (:db-conn req) text name date)]
-    (resp/response {:text text :name name :date date})))
+        _ (db/create-potoo (:db-conn req) id text)]
+    (resp/response {:text text :name username})))
 
 (defn create-user [req]
   (let [conn (:db-conn req)
         {:keys [username password]} (:body req)
         session (:session req)
-        _ (db/create-user conn username password)]
+        _ (db/create-user conn username password)
+        user (db/find-user-by-username conn username)]
     (-> (resp/response {:name username})
-        (assoc :session (assoc session :identity username)))))
+        (assoc :session (assoc session :identity user)))))
 
 (defn create-session [req]
   (let [conn (:db-conn req)
-        {:keys [username password]} (-> req :body)
-        session (assoc (:session req) :identity username)]
-    (if (db/find-user-id-by-name-and-pass conn username password)
-      (-> (resp/response {:name username})
-          (assoc :session session))
+        {:keys [username password]} (-> req :body)]
+    (if-let [user (db/find-user-by-username-and-password conn username password)]
+      (-> (resp/response {:name (:username user)})
+          (assoc :session (assoc (:session req) :identity user)))
       (unauthorized))))
 
 (defn delete-session [{session :session}]
@@ -60,8 +56,8 @@
         (assoc :session updated-session))))
 
 (defn get-all-data [req]
-  (resp/response {:potoos (fmt-potoos (db/find-potoos (:db-conn req)))
-                  :user   (:identity req)}))
+  (resp/response {:potoos (db/find-all-potoos (:db-conn req))
+                  :user   (-> req :identity :username)}))
 
 (defn index-handler [_]
   (resp/file-response "index.html" {:root "resources/public"}))
@@ -95,14 +91,13 @@
 
 ;; WebServer
 
-(defrecord WebServer [opts container datomic-connection]
+(defrecord WebServer [opts container postgres-connection]
   component/Lifecycle
   (start [component]
     (log/info "Starting web server with params:" opts)
-    (let [conn (:db-conn datomic-connection)]
-      (let [req-handler (potoo-handler conn)
-            container (run-jetty req-handler opts)]
-        (assoc component :container container))))
+    (let [req-handler (potoo-handler (:db-spec postgres-connection))
+          container (run-jetty req-handler opts)]
+      (assoc component :container container)))
   (stop [component]
     (log/info "Stopping web server")
     (.stop container)

@@ -10,9 +10,9 @@
            :user nil}))
 
 (defn potoo [p]
-  (let [{:keys [text name date]} p]
+  (let [{:keys [text name created_at]} p]
     [:li
-     [:span (str text ", " name ", " date)]]))
+     [:span (str text ", " name ", " created_at)]]))
 
 (defn create-potoo [text]
   (POST "/api/potoos" {:params {:text text}

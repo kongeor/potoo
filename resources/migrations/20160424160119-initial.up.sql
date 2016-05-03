@@ -8,7 +8,7 @@ CREATE TABLE users
 ;;--
 CREATE TABLE potoos
 (
-    user_id int references users(id),
+    user_id INT REFERENCES users(id) NOT NULL,
     text VARCHAR(140) NOT NULL,
     created_at timestamptz NOT NULL DEFAULT now()
 )
