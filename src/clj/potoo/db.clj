@@ -43,16 +43,8 @@
                 sql/format)]
     (with-sql-profile jdbc/query db sql)))
 
-(defn find-user-by-username-and-password [db username password]
-  (let [sql (-> (select :id :username)
-                (from :users)
-                (where [:= :username username]
-                       [:= :password password])
-                sql/format)]
-    (first (with-sql-profile jdbc/query db sql))))
-
 (defn find-user-by-username [db username]
-  (let [sql (-> (select :id :username)
+  (let [sql (-> (select :*)
                 (from :users)
                 (where [:= :username username])
                 sql/format)]

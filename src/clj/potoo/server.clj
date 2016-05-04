@@ -8,6 +8,7 @@
             [ring.util.response :as resp]
             [buddy.auth.middleware :refer [wrap-authentication]]
             [buddy.auth.backends.session :refer [session-backend]]
+            [buddy.hashers :as hashers]
             [potoo.db :as db]
             [taoensso.timbre :as log]
             [clj-time.core :as t]
@@ -19,6 +20,9 @@
   {:status  401
    :headers {}
    :body    nil})
+
+(defn- encrypt [password]
+  (hashers/derive password {:alg :bcrypt+blake2b-512}))
 
 ;; Handlers
 
@@ -36,16 +40,17 @@
 (defn create-user [req]
   (let [conn (:db-conn req)
         {:keys [username password]} (:body req)
-        session (:session req)
+        password (encrypt password)
         _ (db/create-user conn username password)
         user (db/find-user-by-username conn username)]
     (-> (resp/response {:name username})
-        (assoc :session (assoc session :identity user)))))
+        (assoc :session (assoc (:session req) :identity user)))))
 
 (defn create-session [req]
   (let [conn (:db-conn req)
-        {:keys [username password]} (-> req :body)]
-    (if-let [user (db/find-user-by-username-and-password conn username password)]
+        {:keys [username password]} (-> req :body)
+        user (db/find-user-by-username conn username)]
+    (if (hashers/check password (:password user))
       (-> (resp/response {:name (:username user)})
           (assoc :session (assoc (:session req) :identity user)))
       (unauthorized))))
